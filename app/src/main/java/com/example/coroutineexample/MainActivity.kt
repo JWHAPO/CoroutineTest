@@ -18,7 +18,7 @@ class MainActivity: AppCompatActivity(), CoroutineScope {
 
         mJob = Job()
 
-        launch {
+        launch(handler) {
             Log.i("TAG", Thread.currentThread().name)
             val deferred = async(Dispatchers.Default){
                 10 + 10
@@ -41,6 +41,10 @@ class MainActivity: AppCompatActivity(), CoroutineScope {
 //            Log.i("TAG", "Coroutine is done")
 //        }
 
+    }
+
+    private val handler = CoroutineExceptionHandler{
+        coroutineContext, throwable -> Log.e("Exception", ":$throwable")
     }
 
     override fun onDestroy() {
