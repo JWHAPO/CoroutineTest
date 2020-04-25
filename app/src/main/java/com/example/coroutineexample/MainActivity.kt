@@ -1,10 +1,15 @@
 package com.example.coroutineexample
 
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
+import java.lang.AssertionError
+import java.lang.Runnable
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class MainActivity: AppCompatActivity(), CoroutineScope {
 
@@ -19,11 +24,8 @@ class MainActivity: AppCompatActivity(), CoroutineScope {
         mJob = Job()
 
         launch(handler) {
-            Log.i("TAG", Thread.currentThread().name)
-            val deferred = async(Dispatchers.Default){
-                10 + 10
-            }
-            Log.i("TAG", deferred.await().toString())
+            val result = getFromCallback()
+            Log.i("TAG", "result:$result")
         }
 
 //        //코루틴 생성
@@ -45,6 +47,16 @@ class MainActivity: AppCompatActivity(), CoroutineScope {
 
     private val handler = CoroutineExceptionHandler{
         coroutineContext, throwable -> Log.e("Exception", ":$throwable")
+    }
+
+    private suspend fun getFromCallback() = suspendCoroutine<Int>{
+        Handler().postDelayed({
+            it.resume(15)
+
+//            it.resumeWith(Result.success(15))
+//
+//            it.resumeWith(Result.failure(AssertionError()))
+        }, 2000)
     }
 
     override fun onDestroy() {
