@@ -4,18 +4,22 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import kotlinx.coroutines.*
-import java.lang.AssertionError
-import java.lang.Runnable
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class MainActivity: AppCompatActivity(), CoroutineScope {
+class MainActivity: AppCompatActivity(), CoroutineScope,LifecycleObserver {
 
     private lateinit var mJob: Job
     override val coroutineContext: CoroutineContext
         get() = mJob + Dispatchers.Main
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun destroy() = coroutineContext.cancelChildren()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +58,7 @@ class MainActivity: AppCompatActivity(), CoroutineScope {
             it.resume(15)
 
 //            it.resumeWith(Result.success(15))
-//
+
 //            it.resumeWith(Result.failure(AssertionError()))
         }, 2000)
     }
