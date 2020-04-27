@@ -3,18 +3,23 @@ package com.example.coroutineexample
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class MainActivity: AppCompatActivity(), CoroutineScope,LifecycleObserver {
 
+    private lateinit var tvUserName: TextView
+
     private lateinit var mJob: Job
+
     override val coroutineContext: CoroutineContext
         get() = mJob + Dispatchers.Main
 
@@ -25,12 +30,20 @@ class MainActivity: AppCompatActivity(), CoroutineScope,LifecycleObserver {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_layout)
 
+        tvUserName = findViewById(R.id.tvUserName)
+
         mJob = Job()
 
         launch(handler) {
             val result = getFromCallback()
             Log.i("TAG", "result:$result")
+
         }
+
+        runBlocking {
+            foo2().collect { value -> println(value) }
+        }
+
 
 //        //코루틴 생성
 //        val job = GlobalScope.launch(Dispatchers.Default){
@@ -67,4 +80,12 @@ class MainActivity: AppCompatActivity(), CoroutineScope,LifecycleObserver {
         super.onDestroy()
         mJob.cancel()
     }
+
+    fun foo2(): Flow<Int> = flow {
+        for(i in 1..3){
+            delay(1000L)
+            emit(i)
+        }
+    }
+
 }
