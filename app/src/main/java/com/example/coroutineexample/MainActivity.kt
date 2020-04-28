@@ -35,11 +35,13 @@ class MainActivity: AppCompatActivity() {
 //        showUser(user)
 //    }
 
-    fun fetchFirstUser() : String{
+    suspend fun fetchFirstUser() : String{
+        delay(1000L)
         return "KJW1"
     }
 
-    fun fetchSecondUser() : String{
+    suspend fun fetchSecondUser() : String{
+        delay(1000L)
         return "KJW2"
     }
 
