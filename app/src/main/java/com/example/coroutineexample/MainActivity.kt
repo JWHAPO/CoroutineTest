@@ -14,17 +14,9 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class MainActivity: AppCompatActivity(), CoroutineScope,LifecycleObserver {
+class MainActivity: AppCompatActivity() {
 
     private lateinit var tvUserName: TextView
-
-    private lateinit var mJob: Job
-
-    override val coroutineContext: CoroutineContext
-        get() = mJob + Dispatchers.Main
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    fun destroy() = coroutineContext.cancelChildren()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,60 +24,26 @@ class MainActivity: AppCompatActivity(), CoroutineScope,LifecycleObserver {
 
         tvUserName = findViewById(R.id.tvUserName)
 
-        mJob = Job()
-
-        launch(handler) {
-            val result = getFromCallback()
-            Log.i("TAG", "result:$result")
-
-        }
-
-        runBlocking {
-            foo2().collect { value -> println(value) }
-        }
-
-
-//        //코루틴 생성
-//        val job = GlobalScope.launch(Dispatchers.Default){
-//            repeat(10){
-//                delay(1000L)
-//                Log.i("TAG", "I'm Working")
-//            }
-//        }
-
-        //3초 후 코루틴 종료
-//        runBlocking {
-//            delay(3000L)
-//            job.cancel()
-//            Log.i("TAG", "Coroutine is done")
-//        }
-
-    }
-
-    private val handler = CoroutineExceptionHandler{
-        coroutineContext, throwable -> Log.e("Exception", ":$throwable")
-    }
-
-    private suspend fun getFromCallback() = suspendCoroutine<Int>{
-        Handler().postDelayed({
-            it.resume(15)
-
-//            it.resumeWith(Result.success(15))
-
-//            it.resumeWith(Result.failure(AssertionError()))
-        }, 2000)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mJob.cancel()
-    }
-
-    fun foo2(): Flow<Int> = flow {
-        for(i in 1..3){
-            delay(1000L)
-            emit(i)
+        GlobalScope.launch(Dispatchers.Main) {
+            val userOne = async(Dispatchers.IO) { fetchFirstUser() }
+            val userTwo = async(Dispatchers.IO) { fetchSecondUser() }
+            showUsers(userOne.await(), userTwo.await()) // back on UI thread
         }
     }
+//    suspend fun fetchAndShowUser() {
+//        val user = fetchUser()
+//        showUser(user)
+//    }
 
+    fun fetchFirstUser() : String{
+        return "KJW1"
+    }
+
+    fun fetchSecondUser() : String{
+        return "KJW2"
+    }
+
+    fun showUsers(user1: String, user2: String){
+        tvUserName.text = "User1 : $user1 , User2: $user2"
+    }
 }
