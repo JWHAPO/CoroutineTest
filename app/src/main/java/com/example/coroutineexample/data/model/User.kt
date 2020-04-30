@@ -1,8 +1,14 @@
 package com.example.coroutineexample.data.model
 
+import com.google.gson.annotations.SerializedName
+
 data class User(
-    val avatar: String,
+    @SerializedName("avatar")
+    val image: String,
+    @SerializedName("email")
     val email: String,
+    @SerializedName("id")
     val id: String,
-    val name: String
+    @SerializedName("name")
+    val userName: String
 )
