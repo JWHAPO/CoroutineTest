@@ -38,4 +38,7 @@ class MainAdapter(private val users: ArrayList<User>) : RecyclerView.Adapter<Mai
             addAll(users)
         }
     }
+    fun delUser(index: Int){
+        this.users.removeAt(index)
+    }
 }
